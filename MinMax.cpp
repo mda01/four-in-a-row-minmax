@@ -19,8 +19,10 @@ int MinMax::negamax(Board state, const int depth, int alpha, int beta, vector<in
     const long hash = zobristHash(state);
     const int alphaOrig = alpha;
     const auto iterator = transpositionTable.find(hash);
+    int hDepth = 10000;
     if (iterator != transpositionTable.end()) {
         Entry entry = iterator->second;
+        hDepth = entry.depth;
         if (entry.depth >= depth) {
             if (entry.flag == EXACT)
                 return entry.value;
@@ -50,16 +52,18 @@ int MinMax::negamax(Board state, const int depth, int alpha, int beta, vector<in
         if (alpha >= beta)
             break;
     }
-    Entry e{};
-    e.value = v;
-    if (v <= alphaOrig)
-        e.flag = HIGH;
-    else if (v >= beta)
-        e.flag = LOW;
-    else
-        e.flag = EXACT;
-    e.depth = depth;
-    transpositionTable.insert({hash, e});
+    if (depth > hDepth) {
+        Entry e{};
+        e.value = v;
+        if (v <= alphaOrig)
+            e.flag = HIGH;
+        else if (v >= beta)
+            e.flag = LOW;
+        else
+            e.flag = EXACT;
+        e.depth = depth;
+        transpositionTable.insert({hash, e});
+    }
     return v;
 }
 
